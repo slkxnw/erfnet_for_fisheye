@@ -99,13 +99,13 @@ class cityscapes(Dataset):
         return len(self.filenames)
 class woodscapes(Dataset):
 
-    def __init__(self, root, co_transform=None, subset='gtLabels',imgtype='.png',gttype='.png'):
+    def __init__(self, root, co_transform=None, subset='LaMkLabels',imgtype='.png',gttype='.png'):
         self.images_root = os.path.join(root, 'rgb_images//')
         self.labels_root = os.path.join(root, 'semantic_annotations//')
         self.gttype=gttype
         self.imgtype=imgtype
 
-        self.images_root += subset
+        # self.images_root += subset
         self.labels_root += subset
 
         print(self.images_root)

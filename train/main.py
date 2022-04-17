@@ -29,22 +29,24 @@ from iouEval import iouEval, getColorEntry
 from shutil import copyfile
 
 NUM_CHANNELS = 3
-NUM_CLASSES = 20 #pascal=22, cityscapes=20
+NUM_CLASSES = 3 #pascal=22, cityscapes=20,woodscape=3
+
 
 color_transform = Colorize(NUM_CLASSES)
 image_transform = ToPILImage()
 
 #Augmentations - different function implemented to perform random augments on both image and target
 class MyCoTransform(object):
-    def __init__(self, enc, augment=True, height=512):
+    def __init__(self, enc, augment=True, height=480,width=640):
         self.enc=enc
         self.augment = augment
         self.height = height
+        self.width=width
         pass
     def __call__(self, input, target):
         # do something to both images
-        input =  Resize(self.height, Image.BILINEAR)(input)
-        target = Resize(self.height, Image.NEAREST)(target)
+        input =  Resize((self.height,self.width), Image.BILINEAR)(input)
+        target = Resize((self.height,self.width), Image.NEAREST)(target)
 
         if(self.augment):
             # Random hflip
@@ -89,48 +91,51 @@ def train(args, model, enc=False):
     #create a loder to run all images and calculate histogram of labels, then create weight array using class balancing
 
     weight = torch.ones(NUM_CLASSES)
-    if (enc):
-        weight[0] = 2.3653597831726	
-        weight[1] = 4.4237880706787	
-        weight[2] = 2.9691488742828	
-        weight[3] = 5.3442072868347	
-        weight[4] = 5.2983593940735	
-        weight[5] = 5.2275490760803	
-        weight[6] = 5.4394111633301	
-        weight[7] = 5.3659925460815	
-        weight[8] = 3.4170460700989	
-        weight[9] = 5.2414722442627	
-        weight[10] = 4.7376127243042	
-        weight[11] = 5.2286224365234	
-        weight[12] = 5.455126285553	
-        weight[13] = 4.3019247055054	
-        weight[14] = 5.4264230728149	
-        weight[15] = 5.4331531524658	
-        weight[16] = 5.433765411377	
-        weight[17] = 5.4631009101868	
-        weight[18] = 5.3947434425354
-    else:
-        weight[0] = 2.8149201869965	
-        weight[1] = 6.9850029945374	
-        weight[2] = 3.7890393733978	
-        weight[3] = 9.9428062438965	
-        weight[4] = 9.7702074050903	
-        weight[5] = 9.5110931396484	
-        weight[6] = 10.311357498169	
-        weight[7] = 10.026463508606	
-        weight[8] = 4.6323022842407	
-        weight[9] = 9.5608062744141	
-        weight[10] = 7.8698215484619	
-        weight[11] = 9.5168733596802	
-        weight[12] = 10.373730659485	
-        weight[13] = 6.6616044044495	
-        weight[14] = 10.260489463806	
-        weight[15] = 10.287888526917	
-        weight[16] = 10.289801597595	
-        weight[17] = 10.405355453491	
-        weight[18] = 10.138095855713	
-
-    weight[19] = 0
+    # if (enc):
+    #     weight[0] = 2.3653597831726
+    #     weight[1] = 4.4237880706787
+    #     weight[2] = 2.9691488742828
+    #     weight[3] = 5.3442072868347
+    #     weight[4] = 5.2983593940735
+    #     weight[5] = 5.2275490760803
+    #     weight[6] = 5.4394111633301
+    #     weight[7] = 5.3659925460815
+    #     weight[8] = 3.4170460700989
+    #     weight[9] = 5.2414722442627
+    #     weight[10] = 4.7376127243042
+    #     weight[11] = 5.2286224365234
+    #     weight[12] = 5.455126285553
+    #     weight[13] = 4.3019247055054
+    #     weight[14] = 5.4264230728149
+    #     weight[15] = 5.4331531524658
+    #     weight[16] = 5.433765411377
+    #     weight[17] = 5.4631009101868
+    #     weight[18] = 5.3947434425354
+    # else:
+    #     weight[0] = 2.8149201869965
+    #     weight[1] = 6.9850029945374
+    #     weight[2] = 3.7890393733978
+    #     weight[3] = 9.9428062438965
+    #     weight[4] = 9.7702074050903
+    #     weight[5] = 9.5110931396484
+    #     weight[6] = 10.311357498169
+    #     weight[7] = 10.026463508606
+    #     weight[8] = 4.6323022842407
+    #     weight[9] = 9.5608062744141
+    #     weight[10] = 7.8698215484619
+    #     weight[11] = 9.5168733596802
+    #     weight[12] = 10.373730659485
+    #     weight[13] = 6.6616044044495
+    #     weight[14] = 10.260489463806
+    #     weight[15] = 10.287888526917
+    #     weight[16] = 10.289801597595
+    #     weight[17] = 10.405355453491
+    #     weight[18] = 10.138095855713
+    #
+    # weight[19] = 0
+    weight[0]=1.66029038
+    weight[1]=3.26378753
+    weight[2]=9.17431752
 
     assert os.path.exists(args.datadir), "Error: datadir (dataset directory) could not be loaded"
 
@@ -487,7 +492,7 @@ if __name__ == '__main__':
     parser.add_argument('--state')
 
     parser.add_argument('--port', type=int, default=8097)
-    parser.add_argument('--datadir', default=os.getenv("HOME") + "/datasets/cityscapes/")
+    parser.add_argument('--datadir', default=os.getenv("HOME") + "/datasets/Woodscape/")
     parser.add_argument('--height', type=int, default=512)
     parser.add_argument('--num-epochs', type=int, default=150)
     parser.add_argument('--num-workers', type=int, default=4)
